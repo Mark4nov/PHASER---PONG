@@ -13,7 +13,7 @@ export default class Bootloader extends Phaser.Scene{
         this.load.image('left_pallete', './assets/left_pallete.png');
         this.load.image('right_pallete', './assets/right_pallete.png');
         this.load.image('separator', './assets/separator.png');
-
+        this.load.image('border', './assets/whiteBar.png');
         
     }
 }
