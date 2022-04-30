@@ -1,6 +1,7 @@
 import Palas from "../gameObjects/palas.js";
 const ballVelocity_BASE = 200;
 const ballVelocity_MAX = 600;
+const MAX_SCORE = 5;
 
 export default class Scene_play extends Phaser.Scene{
     constructor(){
@@ -29,9 +30,11 @@ export default class Scene_play extends Phaser.Scene{
         this.add.image(this.gameWidth / 2, this.gameHeight / 2, "separator").setScale(0.8);
 
         //INTERFAZ DE USUARIO:
-        this.add.text(this.gameWidth /2, 2, 'Until 10', {font: '12px bold', fill: '#808080', align: 'left'}).setOrigin(0.5, 0);
-        this.UI_Score_P1 =  this.add.text(this.gameWidth /2 - 24, 24, this.Score_P1, {font: '32px bold', fill: '#ffffff', align: 'left'}).setOrigin(1, 0.5);
-        this.UI_Score_P2 =  this.add.text(this.gameWidth /2 + 24, 24, this.Score_P2, {font: '32px bold', fill: '#ffffff', align: 'right'}).setOrigin(0, 0.5);
+        this.add.text(2, 2, 'W', {font: '12px bold', fill: '#808080'}).setOrigin(0, 0);
+        this.add.text(2, this.gameHeight - 2, 'S', {font: '12px bold', fill: '#808080'}).setOrigin(0, 1);
+        this.add.text(this.gameWidth /2, 2, `Until ${MAX_SCORE}`, {font: '12px bold', fill: '#808080'}).setOrigin(0.5, 0);
+        this.UI_Score_P1 =  this.add.text(this.gameWidth /2 - 24, 24, this.Score_P1, {font: '32px bold', fill: '#ffffff'}).setOrigin(1, 0.5);
+        this.UI_Score_P2 =  this.add.text(this.gameWidth /2 + 24, 24, this.Score_P2, {font: '32px bold', fill: '#ffffff'}).setOrigin(0, 0.5);
 
         //JUGADORES
         this.left_pallete = new Palas(this, 10,this. gameHeight / 2, "left_pallete").setScale(2);
@@ -131,7 +134,7 @@ export default class Scene_play extends Phaser.Scene{
         this.ball.setPosition(this.gameWidth / 2, this.gameHeight / 2);
         this.IsReseting = false;
 
-        if(this.Score_P1 >= 10 || this.Score_P2 >= 10){
+        if(this.Score_P1 >= MAX_SCORE || this.Score_P2 >= MAX_SCORE){
             this.scene.start('Scene_gameOver', {score_P1: this.Score_P1, score_P2: this.Score_P2});
         }
     }
