@@ -7,6 +7,10 @@ export default class Scene_play extends Phaser.Scene{
         super({key: 'Scene_play'});
     }
 
+    init(data){
+        this.GameMode = data.gameMode;
+    }
+
     preload(){
         console.log("INTO THE PLAYING");
     }
@@ -22,9 +26,10 @@ export default class Scene_play extends Phaser.Scene{
     
 
         // ESCENARIO
-        this.add.image(this.gameWidth / 2, this.gameHeight / 2, "separator");
+        this.add.image(this.gameWidth / 2, this.gameHeight / 2, "separator").setScale(0.8);
 
         //INTERFAZ DE USUARIO:
+        this.add.text(this.gameWidth /2, 2, 'Until 10', {font: '12px bold', fill: '#808080', align: 'left'}).setOrigin(0.5, 0);
         this.UI_Score_P1 =  this.add.text(this.gameWidth /2 - 24, 24, this.Score_P1, {font: '32px bold', fill: '#ffffff', align: 'left'}).setOrigin(1, 0.5);
         this.UI_Score_P2 =  this.add.text(this.gameWidth /2 + 24, 24, this.Score_P2, {font: '32px bold', fill: '#ffffff', align: 'right'}).setOrigin(0, 0.5);
 
@@ -81,28 +86,37 @@ export default class Scene_play extends Phaser.Scene{
     InputManager(){
 
         // JUGADOR 1
-        if(this.cursor.down.isDown){
-            this.right_pallete.body.setVelocityY(400);
+        if(this.cursor_S.isDown){
+            this.left_pallete.body.setVelocityY(400);
         }
-        else if(this.cursor.up.isDown){
-            this.right_pallete.body.setVelocityY(-400);
+        else if(this.cursor_W.isDown){
+            this.left_pallete.body.setVelocityY(-400);
         }
         else{
-            this.right_pallete.body.setVelocity(0);
+            this.left_pallete.body.setVelocity(0);
         }
 
         // JUGADOR 2:
-        if(this.cursor_S.isDown){
-            this.left_pallete.body.setVelocityY(400)
-        }
-        else if (this.cursor_W.isDown){
-            this.left_pallete.body.setVelocityY(-400);
+        if(this.GameMode == 'MULTIPLAYER'){
+            if(this.curso.down.isDown){
+                this.right_pallete.body.setVelocityY(400)
+            }
+            else if (this.cursor.up.isDown){
+                this.right_pallete.body.setVelocityY(-400);
+            }else{
+                this.right_pallete.body.setVelocityY(0);
+            }
         }else{
-            this.left_pallete.body.setVelocityY(0);
+            this.right_pallete.body.setVelocityY(this.ball.body.velocity.y *  Phaser.Math.Between(0.75, 0.9));
         }
+        
+        
     }
 
     Restart = () => {
+        this.left_pallete.y = this.gameHeight / 2;
+        this.right_pallete.y = this.gameHeight / 2
+
         this.ball.setVelocityY(0);
         this.ballVelocity_CURRENT = ballVelocity_BASE;
 
