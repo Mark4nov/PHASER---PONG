@@ -1,5 +1,6 @@
-import Border from "../gameObjects/borders.js";
 import Palas from "../gameObjects/palas.js";
+const ballVelocity_BASE = 200;
+const ballVelocity_MAX = 600;
 
 export default class Scene_play extends Phaser.Scene{
     constructor(){
@@ -17,20 +18,19 @@ export default class Scene_play extends Phaser.Scene{
         this.IsReseting = false;
         this.Score_P1 = 0;
         this.Score_P2 = 0;
+        this.ballVelocity_CURRENT = ballVelocity_BASE;
+    
 
         // ESCENARIO
-        this.add.image(this.gameWidth/2, this.gameHeight / 2, "separator");
-        this.border_superior = new Border(this, this.gameWidth / 2, 40, 'border');
-        this.border_inferior = new Border(this, this.gameWidth / 2, 360, 'border');
+        this.add.image(this.gameWidth / 2, this.gameHeight / 2, "separator");
 
         //INTERFAZ DE USUARIO:
-        this.UI_Score_P1 =  this.add.text(20, 4, this.Score_P1, {font: '28px black', fill: '#ffffff'});
-        this.UI_Score_P2 =  this.add.text(this.gameWidth - 35, 4, this.Score_P2, {font: '28px black', fill: '#ffffff'});
+        this.UI_Score_P1 =  this.add.text(this.gameWidth /2 - 24, 24, this.Score_P1, {font: '32px bold', fill: '#ffffff', align: 'left'}).setOrigin(1, 0.5);
+        this.UI_Score_P2 =  this.add.text(this.gameWidth /2 + 24, 24, this.Score_P2, {font: '32px bold', fill: '#ffffff', align: 'right'}).setOrigin(0, 0.5);
 
         //JUGADORES
-        this.left_pallete = new Palas(this, 10,this. gameHeight / 2, "left_pallete");
-        this.right_pallete = new Palas(this, this.gameWidth - 10, this.gameHeight / 2, "right_pallete");
-        
+        this.left_pallete = new Palas(this, 10,this. gameHeight / 2, "left_pallete").setScale(2);
+        this.right_pallete = new Palas(this, this.gameWidth - 10, this.gameHeight / 2, "right_pallete").setScale(2);
 
         //-- CONTROLES:
         this.cursor = this.input.keyboard.createCursorKeys(); // Controles del Jugador 1;
@@ -38,26 +38,32 @@ export default class Scene_play extends Phaser.Scene{
         this.cursor_S = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
 
         //ELEMENTOS INTERACTIVOS
-        this.ball = this.physics.add.image(this.gameWidth / 2, this.gameHeight / 2, "ball");
+        this.ball = this.physics.add.image(this.gameWidth / 2, this.gameHeight / 2, "ball").setScale(2);
         this.ball.setCollideWorldBounds(true); //Colisiona con los límites del mundo;
         this.physics.world.setBoundsCollision(false, false, true, true); // Deshabilita el rebote contra los lados, dejando sólo habilitado el rebote con los limites superior e inferior.
         this.ball.setBounce(1); // Rebota, y la velocidad del rebote es igual al 100% (1) de la velocidad previa al impacto.
-        this.ball.setVelocity(-200, 0); // Velocidad y dirección inicial del a bola al empezar el juego.
+        this.ball.setVelocity(this.ballVelocity_CURRENT, 0); // Velocidad y dirección inicial del a bola al empezar el juego.
 
         //FÍSICAS:
-        this.BallBoucers = this.add.group();
-        this.BallBoucers.add(this.left_pallete);
-        this.BallBoucers.add(this.right_pallete);
-        this.BallBoucers.add(this.border_inferior);
-        this.BallBoucers.add(this.border_superior);
+        this.PalletesGroup = this.add.group();
+        this.PalletesGroup.add(this.left_pallete);
+        this.PalletesGroup.add(this.right_pallete);
 
-        this.physics.add.collider(this.ball, this.BallBoucers, this.palleteBounce,null, this);
+        this.physics.add.collider(this.ball, this.PalletesGroup, this.palleteBounce,null, this);
         this.physics.add.collider(this.left_pallete, this.border_superior);
         
     }
 
     palleteBounce(){
         this.ball.setVelocityY(Phaser.Math.Between(-120, 120));
+
+        if(this.ballVelocity_CURRENT * 1.10 < ballVelocity_MAX){
+            this.ballVelocity_CURRENT += ballVelocity_BASE * 0.10;
+        }else{
+            this.ballVelocity_CURRENT = ballVelocity_MAX;
+        }
+
+        this.ball.body.velocity.normalize().scale(this.ballVelocity_CURRENT);
     }
 
     update(){
@@ -76,10 +82,10 @@ export default class Scene_play extends Phaser.Scene{
 
         // JUGADOR 1
         if(this.cursor.down.isDown){
-            this.right_pallete.body.setVelocityY(300);
+            this.right_pallete.body.setVelocityY(400);
         }
         else if(this.cursor.up.isDown){
-            this.right_pallete.body.setVelocityY(-300);
+            this.right_pallete.body.setVelocityY(-400);
         }
         else{
             this.right_pallete.body.setVelocity(0);
@@ -87,10 +93,10 @@ export default class Scene_play extends Phaser.Scene{
 
         // JUGADOR 2:
         if(this.cursor_S.isDown){
-            this.left_pallete.body.setVelocityY(300)
+            this.left_pallete.body.setVelocityY(400)
         }
         else if (this.cursor_W.isDown){
-            this.left_pallete.body.setVelocityY(-300);
+            this.left_pallete.body.setVelocityY(-400);
         }else{
             this.left_pallete.body.setVelocityY(0);
         }
@@ -98,12 +104,21 @@ export default class Scene_play extends Phaser.Scene{
 
     Restart = () => {
         this.ball.setVelocityY(0);
+        this.ballVelocity_CURRENT = ballVelocity_BASE;
+
         if(this.ball.x < 0){ 
             this.Score_P2 ++;
+            this.ball.setVelocityX(ballVelocity_BASE  * - 1 );
         }else{
             this.Score_P1 ++;
+            this.ball.setVelocityX(ballVelocity_BASE)
         }
+
         this.ball.setPosition(this.gameWidth / 2, this.gameHeight / 2);
         this.IsReseting = false;
+
+        if(this.Score_P1 >= 10 || this.Score_P2 >= 10){
+            this.scene.start('Scene_gameOver', {score_P1: this.Score_P1, score_P2: this.Score_P2});
+        }
     }
 }

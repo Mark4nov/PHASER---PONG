@@ -6,7 +6,7 @@ export default class Bootloader extends Phaser.Scene{
 
     preload(){
         this.load.on("complete", () => {
-            this.scene.start("Scene_play");
+            this.scene.start("Scene_menu");
         })
         
         this.load.image('ball', './assets/ball.png');

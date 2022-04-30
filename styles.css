@@ -1,0 +1,13 @@
+@font-face{
+    font-family: 'MyFonta';
+    src: url('/assets/SportsWorld-Regular.ttf');
+}
+
+body{
+    background-color: antiquewhite;
+}
+
+footer{
+    font-family: 'MyFonta';
+    color: #2d2d2d
+}
